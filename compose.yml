@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+
+  api:
+    ports:
+     - "80:80"
+    build: ./docker
+    container_name: edumin_api
+    volumes:
+     - ./api:/var/www/html
+
+  db:
+    image: mysql:5.7
+    container_name: edumin_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: edumin
+      MYSQL_USER: edumin
+      MYSQL_PASSWORD: edumin
+      TZ: 'Asia/Tokyo'
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    volumes:
+     - ./docker/db/data:/var/lib/mysql
+     - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+     - 3306:3306
+
+  client:
+    build: .
+    volumes:
+      - ./client:/app/edumin/client
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - TZ=Asia/Tokyo
+    container_name: edumin_client
+    tty: true
+    command: bash -c "npm run dev"
