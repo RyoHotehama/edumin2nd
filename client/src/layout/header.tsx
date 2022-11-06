@@ -1,6 +1,6 @@
 import AppBar from '@mui/material/AppBar';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -68,25 +68,31 @@ const Header = () => {
               objectFit='contain'
             />
           </Link>
-          <Button color='inherit' size='large' href='/' sx={{marginLeft: 'auto'}}>
-            Login
-          </Button>
-          <IconButton onClick={handleOpenUserMenu}>
-            <Avatar alt="" src="" />
-          </IconButton>
-          <Menu
-            anchorEl={anchorElUser}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            <MenuItem onClick={handleCloseUserMenu}>
-              <Link href={{pathname: '/'}} passHref>
-                <Typography textAlign="center">
-                  Profile
-                </Typography>
-              </Link>
-            </MenuItem>
-          </Menu>
+          <Box sx={{marginLeft: 'auto'}}>
+            <IconButton onClick={handleOpenUserMenu}>
+              <Avatar alt="" src="" />
+            </IconButton>
+            <Menu
+              anchorEl={anchorElUser}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Link href={{pathname: '/'}} passHref>
+                  <Typography textAlign="center">
+                    Profile
+                  </Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Link href={{pathname: '/'}} passHref>
+                  <Typography textAlign="center">
+                    Login
+                  </Typography>
+                </Link>
+              </MenuItem>
+            </Menu>
+          </Box>
         </Toolbar>
       </Container>
     </AppBar>
