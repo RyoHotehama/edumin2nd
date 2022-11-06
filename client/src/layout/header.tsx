@@ -87,7 +87,7 @@ const Header = () => {
               <MenuItem onClick={handleCloseUserMenu}>
                 <Link href={{pathname: '/'}} passHref>
                   <Typography textAlign="center">
-                    Login
+                    Logout
                   </Typography>
                 </Link>
               </MenuItem>
