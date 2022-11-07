@@ -1,9 +1,11 @@
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Image from 'next/image';
+import Link from 'next/link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import * as yup from 'yup';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -17,7 +19,6 @@ interface FormInput {
 
 // バリデーションルール
 const schema = yup.object({
-  name: yup.string().required('必須入力です'),
   email: yup
     .string()
     .required('必須です')
@@ -48,14 +49,10 @@ export default function Register() {
         style={{display: 'block', margin: '100px auto 30px auto'}}
       />
       <Paper elevation={5} sx={{padding: 5}}>
+        <Typography variant='h5' sx={{marginBottom: 3}}>
+          簡単無料会員登録
+        </Typography>
         <Stack spacing={3}>
-          <TextField
-            required
-            label="ニックネーム"
-            {...register('name')}
-            error={"name" in errors}
-            helperText={errors.name?.message}
-          />
           <TextField
             required
             label="メールアドレス"
@@ -75,6 +72,11 @@ export default function Register() {
           <Button color="primary" variant="contained" size="large" onClick={handleSubmit(onSubmit)}>
             会員登録
           </Button>
+          <Typography component='div' sx={{textAlign: 'center'}}>
+            <Link href={{pathname: '/'}} passHref>
+              ログインはこちら
+            </Link>
+          </Typography>
         </Stack>
       </Paper>
     </Container>
