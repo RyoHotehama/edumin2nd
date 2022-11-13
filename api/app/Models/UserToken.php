@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class UserToken extends Model
 {
     use HasFactory;
-    protected $fillable = ['token', 'email','expire_at'];
+    protected $fillable = ['token', 'email','expire_at','token_flg'];
 }

@@ -9,10 +9,13 @@ import Typography from '@mui/material/Typography';
 import * as yup from 'yup';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import {setuserRegister} from '@/api/userRegister';
+import {Encryption} from '@/components/encryption';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 // フォームの型
 interface FormInput {
-  name: string
   email: string
   password: string
 }
@@ -30,23 +33,37 @@ const schema = yup.object({
 });
 
 export default function Register() {
+  const router = useRouter();
+  const [err, setErr] = useState<FormInput>();
   const {register, handleSubmit, formState: { errors }} = useForm<FormInput>({
     resolver: yupResolver(schema)
   });
   // フォーム送信時の処理
-  const onSubmit: SubmitHandler<FormInput> = (data) => {
-    // バリデーションチェックOK！なときに行う処理を追加
-    console.log(data)
+  const onSubmit: SubmitHandler<FormInput> = async (data) => {
+    // エンコード
+    data.email = Encryption(data.email);
+    data.password = Encryption(data.password);
+
+    const userData = await setuserRegister(data);
+    if (userData.code == 200) {
+      router.push({
+        pathname: '/',
+      });
+    } else if (userData.code == 400) {
+      setErr(userData.data.errors);
+    } else {
+
+    }
   };
   return (
-    <Container maxWidth='sm'>
+    <Container maxWidth='sm' sx={{paddingTop: 10}}>
       <Image
         src={'/logo.png'}
         alt='ロゴ画像'
         width={250}
         height={100}
-        objectFit='contain'
-        style={{display: 'block', margin: '100px auto 30px auto'}}
+        // objectFit='contain'
+        style={{display: 'block', margin: '0 auto 30px auto'}}
       />
       <Paper elevation={5} sx={{padding: 5}}>
         <Typography variant='h5' sx={{marginBottom: 3}}>
@@ -61,6 +78,11 @@ export default function Register() {
             error={"email" in errors}
             helperText={errors.email?.message}
           />
+          {err &&
+            <Typography component='p' color='error'>
+              {err.email}
+            </Typography>
+          }
           <TextField
             required
             label="パスワード"
@@ -69,6 +91,11 @@ export default function Register() {
             error={"password" in errors}
             helperText={errors.password?.message}
           />
+          {err &&
+            <Typography component='p' color='error'>
+              {err.password}
+            </Typography>
+          }
           <Button color="primary" variant="contained" size="large" onClick={handleSubmit(onSubmit)}>
             会員登録
           </Button>

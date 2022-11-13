@@ -18,7 +18,6 @@ export default function Home() {
           alt='ロゴ画像'
           width={300}
           height={100}
-          objectFit='contain'
           style={{top: '30rem', left: 150, position: 'absolute'}}
         />
       </Link>

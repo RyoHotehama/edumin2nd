@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Mail\AuthMail;
 use App\Models\UserToken;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use \Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,7 @@ class UserController extends Controller
      * @param  \App\Http\Requests\UserRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function register(Request $request)
+    public function register(UserRequest $request)
     {
         $user = new User;
         $form = $request->all();
@@ -38,6 +39,9 @@ class UserController extends Controller
             return response()->json(false, Response::HTTP_BAD_REQUEST);
         }
 
+        // デコード
+        $email = base64_decode($email);
+
         // メールを送信
         $url = env('FRONTEND_URL'). "/user/confirm?token=". $token;
         Mail::to($email)->send(new AuthMail($url));
@@ -48,7 +52,7 @@ class UserController extends Controller
     /**
      * 会員情報登録API
      *
-     * @param  \App\Http\Requests\UserRequest $request
+     * @param  \App\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function mainRegister(Request $request)
@@ -59,14 +63,6 @@ class UserController extends Controller
         $result = $this->checkToken($token);
 
         if ($result === 'OK') {
-            $email = UserToken::where([
-                'token' => $token
-            ])->first('email');
-
-            User::where([
-                'email' => $email
-            ])->update(['auth_flg', 1]);
-
             return response()->json('登録完了しました。', Response::HTTP_OK);
         } elseif ($result === 'ALREADY') {
             return response()->json('このメールアドレスはすでに認証されています。', Response::HTTP_BAD_REQUEST);
@@ -119,10 +115,10 @@ class UserController extends Controller
         ])->first();
 
         // トークンチェック
-        if(is_null($data)){
+        if (is_null($data)) {
             //DBから値が返ってこないのでトークンが間違っている、チェックNG
             return "WRONG";
-        }else if($data->auth_flag === 1){
+        } else if ($data->token_flg === 1) {
             //検索して見つかったトークンデータの認証フラグが既に立っている(=認証済み)、チェックNG
             return "ALREADY";
         }
@@ -130,11 +126,27 @@ class UserController extends Controller
         $expire_date = new DateTime($data->expire_at);
 
         // 認証処理(有効なトークンだった場合はフラグを認証済み(true)に更新)
-        if($now < $expire_date){
-            $data->auth_flag = 1;
-            $data->update();
+        if ($now < $expire_date) {
+            try {
+                DB::beginTransaction();
+                // フラグの更新
+                $data->token_flg = 1;
+                $data->update();
+
+                // フラグの更新
+                User::where(
+                    'email', '=', $data->email
+                )->update(['auth_flg' => '1']);
+
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollBack();
+
+                return "WRONG";
+            }
+
             return "OK";
-        }else{
+        } else {
             //有効期限が切れている、チェックNG
             //有効期限の切れたトークンデータ、ユーザデータはもう二度と認証できないので削除
             $email = $data->email;
@@ -154,6 +166,5 @@ class UserController extends Controller
 
             return "EXPIRE";
         }
-
     }
 }
