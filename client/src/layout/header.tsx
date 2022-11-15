@@ -30,7 +30,7 @@ const Header = () => {
     <AppBar
       position='static'
       elevation={0}
-      style={{color: '#ffffff', backgroundColor: '#000000'}}
+      style={{color: '#ffffff', backgroundColor: '#000000', position: 'fixed'}}
     >
       <Container maxWidth='lg'>
         <Toolbar disableGutters>
@@ -65,7 +65,7 @@ const Header = () => {
               alt='ロゴ画像'
               width={180}
               height={50}
-              objectFit='contain'
+              // objectFit='contain'
             />
           </Link>
           <Box sx={{marginLeft: 'auto'}}>
@@ -87,7 +87,7 @@ const Header = () => {
               <MenuItem onClick={handleCloseUserMenu}>
                 <Link href={{pathname: '/'}} passHref>
                   <Typography textAlign="center">
-                    Login
+                    Logout
                   </Typography>
                 </Link>
               </MenuItem>

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreateUserTokensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('user_tokens', function (Blueprint $table) {
             $table->id();
             $table->string('email', 64)->unique();
-            $table->string('password', 255);
-            $table->integer('auth_flg')->default(0);
-            $table->rememberToken();
-            $table->dateTime('delete_at')->nullable();
+            $table->string('token', 255);
+            $table->integer('token_flg')->default(0);
+            $table->dateTime('expire_at');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('user_tokens');
     }
 }
