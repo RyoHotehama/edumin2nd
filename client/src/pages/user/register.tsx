@@ -47,16 +47,18 @@ export default function Register() {
     const userData = await setuserRegister(data);
     if (userData.code == 200) {
       router.push({
-        pathname: '/',
+        pathname: '/user/tentative',
       });
     } else if (userData.code == 400) {
       setErr(userData.data.errors);
     } else {
-
+      router.push({
+        pathname: '/error',
+      });
     }
   };
   return (
-    <Container maxWidth='sm' sx={{paddingTop: 10}}>
+    <Container maxWidth='sm'>
       <Image
         src={'/logo.png'}
         alt='ロゴ画像'

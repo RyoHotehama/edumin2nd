@@ -11,15 +11,17 @@ class AuthMail extends Mailable
 {
     use Queueable, SerializesModels;
     protected $url;
+    protected $email;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($url)
+    public function __construct($url, $email)
     {
         $this->url = $url;
+        $this->email = $email;
     }
 
     /**
@@ -31,6 +33,7 @@ class AuthMail extends Mailable
     {
         return $this->view('mail.register')
                     ->subject('【Edumin】仮登録が完了しました')
-                    ->with(['url'=>$this->url]);
+                    ->with(['url'=>$this->url])
+                    ->with(['email'=>$this->email]);
     }
 }

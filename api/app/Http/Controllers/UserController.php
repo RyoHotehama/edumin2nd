@@ -44,7 +44,7 @@ class UserController extends Controller
 
         // メールを送信
         $url = env('FRONTEND_URL'). "/user/confirm?token=". $token;
-        Mail::to($email)->send(new AuthMail($url));
+        Mail::to($email)->send(new AuthMail($url, $email));
 
         return response()->json(true, Response::HTTP_OK);
     }
@@ -63,9 +63,9 @@ class UserController extends Controller
         $result = $this->checkToken($token);
 
         if ($result === 'OK') {
-            return response()->json('登録完了しました。', Response::HTTP_OK);
+            return response()->json('登録完了しました。ログインを行なって下さい。', Response::HTTP_OK);
         } elseif ($result === 'ALREADY') {
-            return response()->json('このメールアドレスはすでに認証されています。', Response::HTTP_BAD_REQUEST);
+            return response()->json('このメールアドレスはすでに認証されています。ログインを行なって下さい。', Response::HTTP_BAD_REQUEST);
         } elseif ($result === 'WRONG') {
             return response()->json('メールアドレス認証に失敗しました。URLを確認してもう一度やり直してください。', Response::HTTP_BAD_REQUEST);
         } elseif ($result === 'EXPIRE') {
@@ -118,7 +118,7 @@ class UserController extends Controller
         if (is_null($data)) {
             //DBから値が返ってこないのでトークンが間違っている、チェックNG
             return "WRONG";
-        } else if ($data->token_flg === 1) {
+        } elseif ($data->token_flg === 1) {
             //検索して見つかったトークンデータの認証フラグが既に立っている(=認証済み)、チェックNG
             return "ALREADY";
         }
