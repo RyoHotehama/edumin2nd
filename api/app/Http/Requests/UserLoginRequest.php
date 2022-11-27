@@ -47,9 +47,9 @@ class UserLoginRequest extends FormRequest
     {
         return [
             'email.required' => 'メールアドレスは必須項目です。',
-            'email.exists' => 'メールアドレスが違います。',
+            'email.exists' => 'メールアドレスまたはパスワードが違います。',
             'password.required' => 'パスワードは必須項目です。',
-            'password.exists' => 'パスワードが違います。'
+            'password.exists' => 'メールアドレスまたはパスワードが違います。'
         ];
     }
 

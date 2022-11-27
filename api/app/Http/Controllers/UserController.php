@@ -207,4 +207,29 @@ class UserController extends Controller
 
         return response()->json(true, Response::HTTP_OK)->cookie($cookie);
     }
+
+    /**
+     * ユーザー情報取得API
+     *
+     * @param  \App\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getUserInfo(Request $request)
+    {
+        $userToken = UserLoginToken::select('user_id')->where(['token' => $request->token])->first();
+        if (empty($userToken)) {
+            response()->json([
+                'errors' => 'ユーザー情報の取得に失敗しました。'
+            ],Response::HTTP_BAD_REQUEST);
+        }
+        $userInfo = User::find($userToken->user_id)->first();
+
+        if (empty($userInfo)) {
+            response()->json([
+                'errors' => 'ユーザー情報の取得に失敗しました。'
+            ],Response::HTTP_BAD_REQUEST);
+        }
+
+        return response()->json($userInfo, Response::HTTP_OK);
+    }
 }

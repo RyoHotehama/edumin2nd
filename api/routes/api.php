@@ -23,3 +23,5 @@ Route::post('/user/regist', [App\Http\Controllers\UserController::class, 'regist
 Route::post('/user/register', [App\Http\Controllers\UserController::class, 'mainRegister']);
 
 Route::post('/user/login', [App\Http\Controllers\UserController::class, 'validateLogin']);
+
+Route::post('/user/get/info', [App\Http\Controllers\UserController::class, 'getUserInfo']);

@@ -80,6 +80,7 @@ const Login: NextPage = () => {
       });
     }
   };
+
   return (
     <Container maxWidth='sm'>
       <Image
@@ -94,11 +95,16 @@ const Login: NextPage = () => {
         <Typography variant='h5' sx={{marginBottom: 1}}>
           ログイン
         </Typography>
-        {mailErr || passwordErr &&
-          <Typography component='p' color='error' variant='subtitle2' sx={{marginBottom: 2}}>
-            メールアドレスまたはパスワードが違います。
-          </Typography>
-        }
+          {(() => {
+            if (mailErr || passwordErr) {
+              return (
+                <Typography component='p' color='error' variant='subtitle2' sx={{marginBottom: 2}}>
+                  メールアドレスまたはパスワードが違います。
+                </Typography>
+              )
+            }
+          }
+          )()}
         <Stack spacing={3}>
           <TextField
             required

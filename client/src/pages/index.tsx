@@ -1,10 +1,35 @@
 import Container from '@mui/material/Container';
 import Image from 'next/image';
 import Link from 'next/link';
+import nookies from 'nookies';
 import styles from '../styles/Home.module.css';
 import Typography from '@mui/material/Typography';
+import type { GetServerSideProps } from 'next';
+import {LoginCertification} from '@/components/loginCertification';
+import type { NextPage } from 'next';
 
-export default function Home() {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  // クッキー取得
+  const cookies = nookies.get(ctx);
+  // ログインチェック
+  const userData = await LoginCertification(cookies.token);
+  if (!userData) {
+    return {
+      redirect: {
+        permanent: true,
+        destination: '/user/login',
+      },
+    }
+  }
+
+  return {
+    props: {
+      data: userData
+    },
+  };
+};
+
+const Home: NextPage = ({data}: any) => {
   return (
     <>
       <img
@@ -83,3 +108,4 @@ export default function Home() {
     </>
   )
 }
+export default Home
