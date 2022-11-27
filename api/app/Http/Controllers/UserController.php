@@ -8,9 +8,12 @@ use App\Models\User;
 use App\Mail\AuthMail;
 use App\Models\UserToken;
 use Illuminate\Http\Request;
+use App\Models\UserLoginToken;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cookie;
+use App\Http\Requests\UserLoginRequest;
 use \Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -166,5 +169,42 @@ class UserController extends Controller
 
             return "EXPIRE";
         }
+    }
+
+    /**
+     * ログインチェックAPI
+     *
+     * @param  \App\Http\Requests\UserLoginRequest $request
+     * @return \Illuminate\Http\Response
+     */
+    public function validateLogin(UserLoginRequest $request)
+    {
+        $user = User::select('id')->where(['email' => $request->email])->where(['password' => $request->password])->where(['auth_flg' => 1])->first();
+
+        if (empty($user)) {
+            response()->json([
+                'errors' => [
+                    'email' => 'メールアドレスまたはパスワードが違います。'
+                ],
+            ],Response::HTTP_BAD_REQUEST);
+        }
+
+        // トークンの作成
+        $token = uniqid(mt_rand());
+
+        // 一度ログインしたことのあるユーザーはtokenのアップデート、,初めてのログインは、tokenの作成
+        $userToken = new UserLoginToken();
+        if ($userToken->where(['user_id' => $user->id])->first()) {
+            $userToken->where(['user_id' => $user->id])->update(['token' => $token]);
+        } else {
+            $userToken->token = $token;
+            $userToken->user_id = $user->id;
+            $userToken->save();
+        }
+
+        // クッキーの作成
+        $cookie = Cookie::make('token', $token, 60*24, '/', '', true, true);
+
+        return response()->json(true, Response::HTTP_OK)->cookie($cookie);
     }
 }

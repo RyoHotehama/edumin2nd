@@ -9,10 +9,11 @@ import Typography from '@mui/material/Typography';
 import * as yup from 'yup';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {setuserRegister} from '@/api/userRegister';
+import {checkLogin} from '@/api/checkLogin';
 import {Encryption} from '@/components/encryption';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import type { NextPage } from 'next';
 
 // フォームの型
 interface FormInput {
@@ -24,15 +25,14 @@ interface FormInput {
 const schema = yup.object({
   email: yup
     .string()
-    .required('必須です')
+    .required('メールアドレスを入力して下さい')
     .email('正しいメールアドレス形式で入力して下さい'),
   password: yup
     .string()
-    .required('必須です')
-    .min(6, '6文字以上で設定して下さい')
+    .required('パスワードを入力して下さい')
 });
 
-export default function Register() {
+const Login: NextPage = () => {
   const router = useRouter();
   const [mailErrFlg, setMailErrFlg] = useState<boolean>(false);
   const [mailErr, setMailErr] = useState<string>();
@@ -54,18 +54,23 @@ export default function Register() {
     // エンコード
     data.email = Encryption(data.email);
     data.password = Encryption(data.password);
+    const message = 'メールアドレスまたはパスワードが違います。';
 
-    const userData = await setuserRegister(data);
+    const userData = await checkLogin(data);
     if (userData.code == 200) {
       router.push({
-        pathname: '/user/tentative',
+        pathname: '/',
       });
     } else if (userData.code == 400) {
       setMailErr(userData.data.errors.email);
+      setPasswordErr(userData.data.errors.password);
       if (userData.data.errors.email) {
         setMailErrFlg(true);
       }
-      setPasswordErr(userData.data.errors.password);
+      if (userData.data.errors.email == message || userData.data.errors.password == message) {
+        setMailErrFlg(true);
+        setPasswordErrFlg(true);
+      }
       if (userData.data.errors.password) {
         setPasswordErrFlg(true);
       }
@@ -86,9 +91,14 @@ export default function Register() {
         style={{display: 'block', margin: '0 auto 30px auto'}}
       />
       <Paper elevation={5} sx={{padding: 5}}>
-        <Typography variant='h5' sx={{marginBottom: 3}}>
-          簡単無料会員登録
+        <Typography variant='h5' sx={{marginBottom: 1}}>
+          ログイン
         </Typography>
+        {mailErr || passwordErr &&
+          <Typography component='p' color='error' variant='subtitle2' sx={{marginBottom: 2}}>
+            メールアドレスまたはパスワードが違います。
+          </Typography>
+        }
         <Stack spacing={3}>
           <TextField
             required
@@ -99,11 +109,6 @@ export default function Register() {
             helperText={errors.email?.message}
             onChange={() => emailHandleChange()}
           />
-          {mailErr &&
-            <Typography component='p' color='error' variant='subtitle2'>
-              {mailErr}
-            </Typography>
-          }
           <TextField
             required
             label="パスワード"
@@ -113,17 +118,12 @@ export default function Register() {
             helperText={errors.password?.message}
             onChange={() => passwordHandleChange()}
           />
-          {passwordErr &&
-            <Typography component='p' color='error'>
-              {passwordErr}
-            </Typography>
-          }
           <Button color="primary" variant="contained" size="large" onClick={handleSubmit(onSubmit)}>
-            会員登録
+            ログイン
           </Button>
           <Typography component='div' sx={{textAlign: 'center'}}>
-            <Link href={{pathname: '/'}} passHref>
-              ログインはこちら
+            <Link href={{pathname: '/user/register'}} passHref>
+              会員登録はこちら
             </Link>
           </Typography>
         </Stack>
@@ -131,3 +131,4 @@ export default function Register() {
     </Container>
   )
 }
+export default Login
